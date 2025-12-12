@@ -244,18 +244,14 @@ public partial class MainWindow : Window
     /// </summary>
     private static string SanitizePlantUml(string puml)
     {
-        // Convert backtick generic notation to angle bracket format
-        // e.g., IEnumerable`1 -> IEnumerable<T1>, Dictionary`2 -> Dictionary<T1, T2>
-        return System.Text.RegularExpressions.Regex.Replace(
-            puml, 
-            @"(\w+)`(\d+)",
-            match =>
-            {
-                var baseName = match.Groups[1].Value;
-                var count = int.Parse(match.Groups[2].Value);
-                var typeParams = string.Join(", ", Enumerable.Range(1, count).Select(i => $"T{i}"));
-                return $"{baseName}<{typeParams}>";
-            });
+        // Remove backtick generic notation (PlantUML doesn't handle <T1> well)
+        // e.g., IEnumerable`1 -> IEnumerable, Dictionary`2 -> Dictionary
+        var result = System.Text.RegularExpressions.Regex.Replace(puml, @"`\d+", "");
+        
+        // Also remove any existing <T1> style generics that might cause issues
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"<T\d+(,\s*T\d+)*>", "");
+        
+        return result;
     }
 
     private void UseGenerated_Click(object sender, RoutedEventArgs e)

@@ -58,7 +58,7 @@ public class ReflectionAnalyzer
     }
 
     /// <summary>
-    /// Gets a clean type name, converting backtick notation to generic format (e.g., IEnumerable`1 -> IEnumerable<T1>)
+    /// Gets a clean type name, removing generic backtick notation for PlantUML compatibility
     /// </summary>
     private string GetCleanTypeName(Type type)
     {
@@ -66,14 +66,7 @@ public class ReflectionAnalyzer
         var backtickIndex = name.IndexOf('`');
         if (backtickIndex >= 0)
         {
-            var baseName = name.Substring(0, backtickIndex);
-            var countStr = name.Substring(backtickIndex + 1);
-            if (int.TryParse(countStr, out int count) && count > 0)
-            {
-                var typeParams = string.Join(", ", Enumerable.Range(1, count).Select(i => $"T{i}"));
-                return $"{baseName}<{typeParams}>";
-            }
-            return baseName;
+            return name.Substring(0, backtickIndex);
         }
         return name;
     }
