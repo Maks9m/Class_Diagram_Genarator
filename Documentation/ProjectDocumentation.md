@@ -254,47 +254,47 @@ Employee --|> Person
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                              MainWindow.xaml.cs                              │
+│                              MainWindow.xaml.cs                             │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│ using System.Collections.ObjectModel                                         │
-│ using System.IO                                                              │
-│ using System.IO.Compression                                                  │
-│ using System.Net.Http                                                        │
-│ using System.Reflection                                                      │
-│ using System.Text                                                            │
-│ using System.Windows                                                         │
-│ using System.Windows.Input                                                   │
-│ using System.Windows.Media.Imaging                                           │
-│ using ClassDiagramGenerator.Formatters ──────────┐                           │
-│ using ClassDiagramGenerator.Models ──────────────┼───┐                       │
-│ using ClassDiagramGenerator.Services ────────────┼───┼───┐                   │
-│ using Microsoft.Win32                            │   │   │                   │
-└──────────────────────────────────────────────────┼───┼───┼───────────────────┘
+│ using System.Collections.ObjectModel                                        │
+│ using System.IO                                                             │
+│ using System.IO.Compression                                                 │
+│ using System.Net.Http                                                       │
+│ using System.Reflection                                                     │
+│ using System.Text                                                           │
+│ using System.Windows                                                        │
+│ using System.Windows.Input                                                  │
+│ using System.Windows.Media.Imaging                                          │
+│ using ClassDiagramGenerator.Formatters ──────────┐                          │
+│ using ClassDiagramGenerator.Models ──────────────┼───┐                      │
+│ using ClassDiagramGenerator.Services ────────────┼───┼───┐                  │
+│ using Microsoft.Win32                            │   │   │                  │
+└──────────────────────────────────────────────────┼───┼───┼──────────────────┘
                                                    │   │   │
                     ┌──────────────────────────────┘   │   │
                     ▼                                  │   │
-┌─────────────────────────────────────┐               │   │
-│       DiagramFormatter.cs           │               │   │
-├─────────────────────────────────────┤               │   │
-│ using ClassDiagramGenerator.Models ─┼───────────────┤   │
-│ using System.Text                   │               │   │
-└─────────────────────────────────────┘               │   │
-                                                      │   │
-                    ┌─────────────────────────────────┘   │
-                    ▼                                     │
-┌─────────────────────────────────────┐                  │
-│       ReflectionAnalyzer.cs         │                  │
-├─────────────────────────────────────┤                  │
-│ using System.Reflection             │                  │
-│ using ClassDiagramGenerator.Models ─┼──────────────────┤
-└─────────────────────────────────────┘                  │
-                                                         │
-                    ┌────────────────────────────────────┘
+┌─────────────────────────────────────┐                │   │
+│       DiagramFormatter.cs           │                │   │
+├─────────────────────────────────────┤                │   │
+│ using ClassDiagramGenerator.Models ─┼────────────────┤   │
+│ using System.Text                   │                │   │
+└─────────────────────────────────────┘                │   │
+                                                       │   │
+                    ┌──────────────────────────────────┘   │
+                    ▼                                      │
+┌─────────────────────────────────────┐                    │
+│       ReflectionAnalyzer.cs         │                    │
+├─────────────────────────────────────┤                    │
+│ using System.Reflection             │                    │
+│ using ClassDiagramGenerator.Models ─┼────────────────────┤
+└─────────────────────────────────────┘                    │
+                                                           │
+                    ┌──────────────────────────────────────┘
                     ▼
 ┌─────────────────────────────────────────────────────────┐
-│                    Models/                               │
+│                    Models/                              │
 ├─────────────────────────────────────────────────────────┤
-│                                                          │
+│                                                         │
 │  ┌─────────────────┐    ┌─────────────────────────────┐ │
 │  │ AccessModifier  │    │      ClassDiagram           │ │
 │  │ (enum)          │◄───│ using: немає                │ │
