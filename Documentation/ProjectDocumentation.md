@@ -150,7 +150,6 @@ Employee --|> Person
 | `ClassMethod` | Метод класу з параметрами |
 | `MethodParameter` | Параметр методу |
 | `AccessModifier` | Модифікатор доступу (enum) |
-| `ClassRelationship` | Зв'язок між класами |
 
 **2. Services (Сервіси)**
 
@@ -311,15 +310,9 @@ Employee --|> Person
 │  │ - AccessModifier│    │  - AccessModifier           │ │
 │  └─────────────────┘    │  - MethodParameter          │ │
 │                         └─────────────────────────────┘ │
-│                                                          │
-│  ┌─────────────────┐    ┌─────────────────────────────┐ │
-│  │MethodParameter  │    │    ClassRelationship        │ │
-│  │ using: немає    │    │ using: немає                │ │
-│  └─────────────────┘    │ залежить від:               │ │
-│                         │  - RelationshipType         │ │
-│  ┌─────────────────┐    └─────────────────────────────┘ │
-│  │RelationshipType │                                    │
-│  │ (enum)          │                                    │
+│                                                         │
+│  ┌─────────────────┐                                    │
+│  │MethodParameter  │                                    │
 │  │ using: немає    │                                    │
 │  └─────────────────┘                                    │
 └─────────────────────────────────────────────────────────┘
@@ -361,8 +354,6 @@ ClassDiagramGenerator (namespace)
     ├── ClassMember.cs (використовує AccessModifier)
     ├── ClassMethod.cs (використовує AccessModifier, MethodParameter)
     ├── MethodParameter.cs (без залежностей)
-    ├── ClassRelationship.cs (використовує RelationshipType)
-    └── RelationshipType.cs (enum, без залежностей)
 ```
 
 ---
@@ -389,13 +380,6 @@ package "ClassDiagramGenerator.Models" #EEEEFF {
         Private
         Protected
         Internal
-    }
-
-    enum RelationshipType {
-        Inherits
-        Implements
-        Uses
-        DependsOn
     }
 
     class ClassDiagram {
@@ -440,14 +424,6 @@ package "ClassDiagramGenerator.Models" #EEEEFF {
     class MethodParameter {
         +Name: String
         +Type: String
-    }
-
-    class ClassRelationship {
-        +SourceClass: String
-        +TargetClass: String
-        +Type: RelationshipType
-        +SourceNamespace: String
-        +TargetNamespace: String
     }
 }
 
@@ -520,7 +496,6 @@ ClassMethod "1" *-- "*" MethodParameter : contains
 ' Зв'язки використання
 ClassMember --> AccessModifier : uses
 ClassMethod --> AccessModifier : uses
-ClassRelationship --> RelationshipType : uses
 
 ' Реалізація інтерфейсу
 AsciiFormatter ..|> IDiagramFormatter
@@ -557,8 +532,7 @@ Class_Diagram_Generator/
 │   ├── AccessModifier.cs             # Enum модифікаторів доступу
 │   ├── ClassDiagram.cs               # Модель діаграми класу
 │   ├── ClassMember.cs                # Модель члена класу
-│   ├── ClassMethod.cs                # Модель методу
-│   └── ClassRelationship.cs          # Модель зв'язку між класами
+│   └── ClassMethod.cs                # Модель методу
 │
 ├── Services/
 │   └── ReflectionAnalyzer.cs         # Сервіс аналізу типів
