@@ -66,26 +66,32 @@ public class AsciiFormatter : IDiagramFormatter
         if (diagram.Interfaces.Any())
             AppendLine(sb, $"implements: {string.Join(", ", diagram.Interfaces)}");
 
-        if (diagram.Members.Any())
+        var (displayMembers, hiddenMembers) = diagram.GetDisplayMembers();
+        if (displayMembers.Any())
         {
             sb.Append('├');
             sb.Append(new string('─', BoxWidth - 2));
             sb.AppendLine("┤");
-            foreach (var member in diagram.Members)
+            foreach (var member in displayMembers)
             {
                 AppendLine(sb, member.ToString());
             }
+            if (hiddenMembers > 0)
+                AppendLine(sb, $"... +{hiddenMembers} more fields");
         }
 
-        if (diagram.Methods.Any())
+        var (displayMethods, hiddenMethods) = diagram.GetDisplayMethods();
+        if (displayMethods.Any())
         {
             sb.Append('├');
             sb.Append(new string('─', BoxWidth - 2));
             sb.AppendLine("┤");
-            foreach (var method in diagram.Methods)
+            foreach (var method in displayMethods)
             {
                 AppendLine(sb, method.ToString());
             }
+            if (hiddenMethods > 0)
+                AppendLine(sb, $"... +{hiddenMethods} more methods");
         }
 
         // Bottom border: └────────────────────┘
@@ -133,20 +139,26 @@ public class PlantUmlFormatter : IDiagramFormatter
         sb.AppendLine("@startuml");
         sb.AppendLine("class " + diagram.ClassName + " {");
 
-        if (diagram.Members.Any())
+        var (displayMembers, hiddenMembers) = diagram.GetDisplayMembers();
+        if (displayMembers.Any())
         {
-            foreach (var member in diagram.Members)
+            foreach (var member in displayMembers)
             {
                 sb.AppendLine("  " + member.ToString());
             }
+            if (hiddenMembers > 0)
+                sb.AppendLine($"  .. +{hiddenMembers} more fields ..");
         }
 
-        if (diagram.Methods.Any())
+        var (displayMethods, hiddenMethods) = diagram.GetDisplayMethods();
+        if (displayMethods.Any())
         {
-            foreach (var method in diagram.Methods)
+            foreach (var method in displayMethods)
             {
                 sb.AppendLine("  " + method.ToString());
             }
+            if (hiddenMethods > 0)
+                sb.AppendLine($"  .. +{hiddenMethods} more methods ..");
         }
 
         sb.AppendLine("}");
@@ -174,20 +186,26 @@ public class PlantUmlFormatter : IDiagramFormatter
         {
             sb.AppendLine($"class {diagram.ClassName} {{");
 
-            if (diagram.Members.Any())
+            var (displayMembers, hiddenMembers) = diagram.GetDisplayMembers();
+            if (displayMembers.Any())
             {
-                foreach (var member in diagram.Members)
+                foreach (var member in displayMembers)
                 {
                     sb.AppendLine("  " + member.ToString());
                 }
+                if (hiddenMembers > 0)
+                    sb.AppendLine($"  .. +{hiddenMembers} more fields ..");
             }
 
-            if (diagram.Methods.Any())
+            var (displayMethods, hiddenMethods) = diagram.GetDisplayMethods();
+            if (displayMethods.Any())
             {
-                foreach (var method in diagram.Methods)
+                foreach (var method in displayMethods)
                 {
                     sb.AppendLine("  " + method.ToString());
                 }
+                if (hiddenMethods > 0)
+                    sb.AppendLine($"  .. +{hiddenMethods} more methods ..");
             }
 
             sb.AppendLine("}");
