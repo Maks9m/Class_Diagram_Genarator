@@ -14,7 +14,7 @@ public class ClassMember
     public override string ToString()
     {
         var modifiers = GetModifierPrefix();
-        return $"{modifiers}{Type} {Name}";
+        return $"{modifiers}{Name}: {Type}";
     }
 
     private string GetModifierPrefix()

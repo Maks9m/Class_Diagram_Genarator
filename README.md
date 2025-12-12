@@ -38,6 +38,67 @@ ClassDiagramGenerator/
 └── ClassDiagramGenerator.csproj
 ```
 
+### Project Classes Diagram
+```mermaid
+classDiagram
+    class IDiagramFormatter {
+        <<interface>>
+        +Format(ClassDiagram): string
+        +FormatMultiple(List~ClassDiagram~): string
+    }
+
+    class AsciiFormatter {
+        +Format(ClassDiagram): string
+        +FormatMultiple(List~ClassDiagram~): string
+    }
+
+    class PlantUmlFormatter {
+        +Format(ClassDiagram): string
+        +FormatMultiple(List~ClassDiagram~): string
+    }
+
+    class ReflectionAnalyzer {
+        +AnalyzeType(Type): ClassDiagram
+        +AnalyzeAssembly(Assembly): List~ClassDiagram~
+        +ExtractRelationships(List~ClassDiagram~): List~ClassRelationship~
+    }
+
+    class ClassDiagram {
+        +ClassName: string
+        +Namespace: string
+        +IsAbstract: bool
+        +BaseClass: string
+        +Members: List~ClassMember~
+        +Methods: List~ClassMethod~
+    }
+
+    class ClassMember {
+        +Name: string
+        +Type: string
+        +AccessModifier: AccessModifier
+    }
+
+    class ClassMethod {
+        +Name: string
+        +ReturnType: string
+        +Parameters: List~MethodParameter~
+    }
+
+    class MainWindow {
+        -_analyzer: ReflectionAnalyzer
+        -_asciiFormatter: AsciiFormatter
+        -_plantUmlFormatter: PlantUmlFormatter
+    }
+
+    IDiagramFormatter <|.. AsciiFormatter
+    IDiagramFormatter <|.. PlantUmlFormatter
+    ReflectionAnalyzer --> ClassDiagram : creates
+    ClassDiagram o-- ClassMember
+    ClassDiagram o-- ClassMethod
+    MainWindow --> ReflectionAnalyzer : uses
+    MainWindow --> IDiagramFormatter : uses
+```
+
 ## Usage
 
 ### Build the Project
