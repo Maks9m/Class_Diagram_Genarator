@@ -1,25 +1,48 @@
 # Class Diagram Generator
 
-A C# console application that generates UML class diagrams from .NET types using reflection and outputs them in multiple formats (ASCII and PlantUML).
+A WPF desktop application that generates UML class diagrams from .NET types using reflection and outputs them in multiple formats (ASCII and PlantUML).
+
+![.NET](https://img.shields.io/badge/.NET-8.0-blue)
+![WPF](https://img.shields.io/badge/WPF-Desktop-green)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ## Features
 
+🖥️ **Modern WPF Desktop Application**
+- Clean, intuitive user interface
+- Tabbed view for different output formats
+- Type browser panel for analyzed assemblies
+- Copy to clipboard functionality
+
 ✨ **Reflection-Based Analysis**
-- Automatically analyze any .NET type and extract its structure
-- Analyze entire assemblies at once
+- Analyze any .NET type and extract its structure
+- Load and analyze entire DLL assemblies
 - Extract members, methods, properties, and their access modifiers
 
 📊 **Multiple Output Formats**
-- **ASCII Format**: Beautiful console output with box drawing characters
+- **ASCII Format**: Beautiful text output with box drawing characters
 - **PlantUML Format**: Generate diagrams compatible with PlantUML
 
-🎯 **UML Support**
+🔍 **Live PlantUML Preview**
+- Built-in PlantUML code editor with syntax highlighting
+- Real-time diagram preview using PlantUML online server
+- Use generated code or write your own PlantUML
+
+🎯 **Full UML Support**
 - Access modifiers (Public, Private, Protected, Internal)
 - Class inheritance (base classes)
 - Interface implementation
 - Abstract and static members
 - Method parameters and return types
 - Properties and fields with metadata
+
+## Screenshots
+
+The application features four main tabs:
+- **Diagram View**: ASCII art representation of classes
+- **PlantUML Code**: Generated PlantUML source code
+- **Information**: Detailed class metadata
+- **PlantUML Preview**: Live preview with code editor
 
 ## Project Structure
 
@@ -29,12 +52,16 @@ ClassDiagramGenerator/
 │   ├── AccessModifier.cs      # Enum for UML access modifiers
 │   ├── ClassDiagram.cs        # Main diagram model
 │   ├── ClassMember.cs         # Class fields and properties
-│   └── ClassMethod.cs         # Class methods and parameters
+│   ├── ClassMethod.cs         # Class methods and parameters
+│   └── ClassRelationship.cs   # Class relationship types
 ├── Services/
 │   └── ReflectionAnalyzer.cs  # Reflection-based type analyzer
 ├── Formatters/
 │   └── DiagramFormatter.cs    # ASCII and PlantUML formatters
-├── Program.cs                 # Main entry point with examples
+├── App.xaml                   # WPF Application definition
+├── App.xaml.cs
+├── MainWindow.xaml            # Main window UI
+├── MainWindow.xaml.cs         # Main window logic
 └── ClassDiagramGenerator.csproj
 ```
 
@@ -196,6 +223,19 @@ dotnet build ClassDiagramGenerator.csproj
 dotnet run
 ```
 
+Or run the executable directly:
+```bash
+./bin/Debug/net8.0-windows/ClassDiagramGenerator.exe
+```
+
+### Using the Application
+
+1. **Analyze a Type**: Enter a fully-qualified type name (e.g., `System.String`) and click "Analyze Type"
+2. **Browse Assembly**: Click "Browse Assembly" to load a DLL file and analyze all its public types
+3. **View Results**: Use the tabs to switch between ASCII diagram, PlantUML code, and class information
+4. **PlantUML Preview**: Go to the "PlantUML Preview" tab to write custom PlantUML code and see a live preview
+5. **Copy Output**: Select output format and click "Copy to Clipboard"
+
 ### Programmatic Usage
 
 ```csharp
@@ -234,14 +274,14 @@ Console.WriteLine(formatter.FormatMultiple(diagrams));
 ┌──────────────────────────────────────────────────┐
 │                   Employee                       │
 ├──────────────────────────────────────────────────┤
-│ - id: int                                         │
-│ - name: string                                    │
-│ - salary: decimal                                 │
-│ + department: string                              │
+│ - id: int                                        │
+│ - name: string                                   │
+│ - salary: decimal                                │
+│ + department: string                             │
 ├──────────────────────────────────────────────────┤
-│ + GetSalary(): decimal                            │
+│ + GetSalary(): decimal                           │
 │ + SetSalary(newSalary: decimal): void            │
-│ + [virtual] ToString(): string                    │
+│ + [virtual] ToString(): string                   │
 └──────────────────────────────────────────────────┘
 ```
 
@@ -276,8 +316,8 @@ class Employee {
 
 ## Requirements
 
-- .NET 8.0 or later
-- C# 11 or later
+- .NET 8.0 SDK or later
+- Windows (WPF application)
 
 ## Example Classes
 
@@ -305,13 +345,13 @@ You can extend the application by:
 
 ## Future Enhancements
 
-- [ ] SVG diagram generation
+- [ ] Visual diagram canvas with relationship arrows
+- [ ] SVG/PNG export functionality
+- [ ] Mermaid diagram format support
 - [ ] JSON output format
-- [ ] Mermaid diagram format
-- [ ] Relationship visualization (aggregation, composition)
-- [ ] Generic type support improvements
-- [ ] C# 8+ nullable reference types support
-- [ ] Custom type filter/include rules
+- [ ] Assembly comparison tool
+- [ ] Save/Load project sessions
+- [ ] Dark theme support
 
 ## License
 
