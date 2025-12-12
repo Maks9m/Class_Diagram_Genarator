@@ -212,10 +212,13 @@ public partial class MainWindow : Window
 
         try
         {
-            var encoded = EncodePlantUml(pumlCode);
+            // Sanitize PlantUML code - fix backtick generic notation
+            var sanitized = SanitizePlantUml(pumlCode);
+            var encoded = EncodePlantUml(sanitized);
             var url = $"https://www.plantuml.com/plantuml/png/{encoded}";
 
             using var client = new HttpClient();
+            client.Timeout = TimeSpan.FromSeconds(30);
             var imageBytes = await client.GetByteArrayAsync(url);
 
             var bitmap = new BitmapImage();
@@ -226,10 +229,23 @@ public partial class MainWindow : Window
 
             PumlPreviewImage.Source = bitmap;
         }
+        catch (HttpRequestException ex)
+        {
+            MessageBox.Show($"HTTP Error: {ex.Message}\n\nThe PlantUML code may be too complex or contain unsupported syntax.", "Preview Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
         catch (Exception ex)
         {
             MessageBox.Show($"Error generating preview: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    /// <summary>
+    /// Sanitizes PlantUML code to fix common issues
+    /// </summary>
+    private static string SanitizePlantUml(string puml)
+    {
+        // Remove backtick generic notation (e.g., IEnumerable`1 -> IEnumerable)
+        return System.Text.RegularExpressions.Regex.Replace(puml, @"`\d+", "");
     }
 
     private void UseGenerated_Click(object sender, RoutedEventArgs e)

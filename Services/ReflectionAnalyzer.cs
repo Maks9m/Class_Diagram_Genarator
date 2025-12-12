@@ -47,14 +47,28 @@ public class ReflectionAnalyzer
         if (type.BaseType is null || type.BaseType == typeof(object))
             return null;
 
-        return type.BaseType.Name;
+        return GetCleanTypeName(type.BaseType);
     }
 
     private List<string> GetInterfaceNames(Type type)
     {
         return type.GetInterfaces()
-            .Select(i => i.Name)
+            .Select(i => GetCleanTypeName(i))
             .ToList();
+    }
+
+    /// <summary>
+    /// Gets a clean type name, removing generic backtick notation
+    /// </summary>
+    private string GetCleanTypeName(Type type)
+    {
+        var name = type.Name;
+        var backtickIndex = name.IndexOf('`');
+        if (backtickIndex >= 0)
+        {
+            return name.Substring(0, backtickIndex);
+        }
+        return name;
     }
 
     private List<ClassMember> ExtractMembers(Type type)
