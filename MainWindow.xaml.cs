@@ -1,8 +1,12 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.IO.Compression;
+using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using ClassDiagramGenerator.Formatters;
 using ClassDiagramGenerator.Models;
 using ClassDiagramGenerator.Services;
@@ -142,11 +146,6 @@ public partial class MainWindow : Window
             // Display information
             var info = GenerateClassInfo(diagram);
             InfoOutput.Text = info;
-
-            // Display relationships
-            var diagrams = _diagramCache.Values.ToList();
-            var relationships = _analyzer.GenerateRelationshipDiagram(diagrams);
-            RelationshipsOutput.Text = relationships;
         }
         catch (Exception ex)
         {
@@ -192,38 +191,6 @@ public partial class MainWindow : Window
         }
     }
 
-    private void SaveToFile_Click(object sender, RoutedEventArgs e)
-    {
-        var format = FormatCombo.SelectedItem?.ToString() ?? "ASCII";
-        var text = format == "ASCII" ? DiagramOutput.Text : PlantUmlOutput.Text;
-
-        if (string.IsNullOrEmpty(text))
-        {
-            MessageBox.Show("No diagram to save", "Nothing to Save", MessageBoxButton.OK, MessageBoxImage.Warning);
-            return;
-        }
-
-        var saveDialog = new SaveFileDialog
-        {
-            Filter = format == "ASCII" ? "Text Files (*.txt)|*.txt|All Files (*.*)|*.*" : "PlantUML Files (*.puml)|*.puml|All Files (*.*)|*.*",
-            DefaultExt = format == "ASCII" ? ".txt" : ".puml",
-            FileName = $"diagram_{DateTime.Now:yyyyMMdd_HHmmss}"
-        };
-
-        if (saveDialog.ShowDialog() == true)
-        {
-            try
-            {
-                File.WriteAllText(saveDialog.FileName, text);
-                MessageBox.Show($"Diagram saved to {saveDialog.FileName}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error saving file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-    }
-
     private void Clear_Click(object sender, RoutedEventArgs e)
     {
         TypeNameInput.Clear();
@@ -232,5 +199,106 @@ public partial class MainWindow : Window
         InfoOutput.Clear();
         _analyzedTypes.Clear();
         _diagramCache.Clear();
+    }
+
+    private async void PreviewPuml_Click(object sender, RoutedEventArgs e)
+    {
+        var pumlCode = PumlInput.Text.Trim();
+        if (string.IsNullOrEmpty(pumlCode))
+        {
+            MessageBox.Show("Please enter PlantUML code", "Input Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        try
+        {
+            var encoded = EncodePlantUml(pumlCode);
+            var url = $"https://www.plantuml.com/plantuml/png/{encoded}";
+
+            using var client = new HttpClient();
+            var imageBytes = await client.GetByteArrayAsync(url);
+
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.StreamSource = new MemoryStream(imageBytes);
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.EndInit();
+
+            PumlPreviewImage.Source = bitmap;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error generating preview: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void UseGenerated_Click(object sender, RoutedEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(PlantUmlOutput.Text))
+        {
+            PumlInput.Text = PlantUmlOutput.Text;
+        }
+        else
+        {
+            MessageBox.Show("No generated PlantUML code available. Analyze a type first.", "No Code", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
+
+    private static string EncodePlantUml(string text)
+    {
+        var compressed = Deflate(Encoding.UTF8.GetBytes(text));
+        return Encode64(compressed);
+    }
+
+    private static byte[] Deflate(byte[] data)
+    {
+        using var output = new MemoryStream();
+        using (var deflate = new DeflateStream(output, CompressionLevel.Optimal))
+        {
+            deflate.Write(data, 0, data.Length);
+        }
+        return output.ToArray();
+    }
+
+    private static string Encode64(byte[] data)
+    {
+        var sb = new StringBuilder();
+        for (int i = 0; i < data.Length; i += 3)
+        {
+            if (i + 2 == data.Length)
+            {
+                sb.Append(Append3Bytes(data[i], data[i + 1], 0));
+            }
+            else if (i + 1 == data.Length)
+            {
+                sb.Append(Append3Bytes(data[i], 0, 0));
+            }
+            else
+            {
+                sb.Append(Append3Bytes(data[i], data[i + 1], data[i + 2]));
+            }
+        }
+        return sb.ToString();
+    }
+
+    private static string Append3Bytes(byte b1, byte b2, byte b3)
+    {
+        int c1 = b1 >> 2;
+        int c2 = ((b1 & 0x3) << 4) | (b2 >> 4);
+        int c3 = ((b2 & 0xF) << 2) | (b3 >> 6);
+        int c4 = b3 & 0x3F;
+        return $"{Encode6Bit(c1)}{Encode6Bit(c2)}{Encode6Bit(c3)}{Encode6Bit(c4)}";
+    }
+
+    private static char Encode6Bit(int b)
+    {
+        if (b < 10) return (char)(48 + b);
+        b -= 10;
+        if (b < 26) return (char)(65 + b);
+        b -= 26;
+        if (b < 26) return (char)(97 + b);
+        b -= 26;
+        if (b == 0) return '-';
+        return '_';
     }
 }

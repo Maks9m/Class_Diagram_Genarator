@@ -45,13 +45,20 @@ public class AsciiFormatter : IDiagramFormatter
         var classType = diagram.IsInterface ? "<<interface>>" :
                        diagram.IsAbstract ? "<<abstract>>" : "";
 
-        sb.AppendLine(new string('┌', BoxWidth));
+        // Top border: ┌────────────────────┐
+        sb.Append('┌');
+        sb.Append(new string('─', BoxWidth - 2));
+        sb.AppendLine("┐");
         
         if (!string.IsNullOrEmpty(classType))
             CenterAndAppend(sb, classType);
         
         CenterAndAppend(sb, diagram.ClassName);
-        sb.AppendLine(new string('├', BoxWidth));
+        
+        // Separator: ├────────────────────┤
+        sb.Append('├');
+        sb.Append(new string('─', BoxWidth - 2));
+        sb.AppendLine("┤");
 
         if (!string.IsNullOrEmpty(diagram.BaseClass))
             AppendLine(sb, $"extends: {diagram.BaseClass}");
@@ -61,7 +68,9 @@ public class AsciiFormatter : IDiagramFormatter
 
         if (diagram.Members.Any())
         {
-            sb.AppendLine(new string('├', BoxWidth));
+            sb.Append('├');
+            sb.Append(new string('─', BoxWidth - 2));
+            sb.AppendLine("┤");
             foreach (var member in diagram.Members)
             {
                 AppendLine(sb, member.ToString());
@@ -70,26 +79,33 @@ public class AsciiFormatter : IDiagramFormatter
 
         if (diagram.Methods.Any())
         {
-            sb.AppendLine(new string('├', BoxWidth));
+            sb.Append('├');
+            sb.Append(new string('─', BoxWidth - 2));
+            sb.AppendLine("┤");
             foreach (var method in diagram.Methods)
             {
                 AppendLine(sb, method.ToString());
             }
         }
 
-        sb.AppendLine(new string('└', BoxWidth));
+        // Bottom border: └────────────────────┘
+        sb.Append('└');
+        sb.Append(new string('─', BoxWidth - 2));
+        sb.AppendLine("┘");
     }
 
     private void CenterAndAppend(StringBuilder sb, string text)
     {
-        var safeLengthText = text.Length > BoxWidth - 2 ? text.Substring(0, Math.Max(1, BoxWidth - 5)) + "..." : text;
-        var padding = Math.Max(0, (BoxWidth - safeLengthText.Length) / 2);
-        var endPadding = Math.Max(0, BoxWidth - padding - safeLengthText.Length - 1);
+        var innerWidth = BoxWidth - 2; // Space between the two │ characters
+        var safeLengthText = text.Length > innerWidth ? text.Substring(0, Math.Max(1, innerWidth - 3)) + "..." : text;
+        var totalPadding = innerWidth - safeLengthText.Length;
+        var leftPadding = totalPadding / 2;
+        var rightPadding = totalPadding - leftPadding;
         
-        sb.Append("│");
-        sb.Append(new string(' ', padding));
+        sb.Append('│');
+        sb.Append(new string(' ', leftPadding));
         sb.Append(safeLengthText);
-        sb.Append(new string(' ', endPadding));
+        sb.Append(new string(' ', rightPadding));
         sb.AppendLine("│");
     }
 

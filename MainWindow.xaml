@@ -31,7 +31,6 @@
                         <ComboBoxItem>PlantUML</ComboBoxItem>
                     </ComboBox>
                     <Button Content="Copy to Clipboard" Click="CopyToClipboard_Click" Background="#0078D4"/>
-                    <Button Content="Save to File" Click="SaveToFile_Click" Background="#0078D4"/>
                 </StackPanel>
             </StackPanel>
         </Border>
@@ -99,19 +98,45 @@
                                AcceptsReturn="True"/>
                     </Grid>
                 </TabItem>
-                <TabItem Header="Relationships" Background="White">
+                <TabItem Header="PlantUML Preview" Background="White">
                     <Grid Background="White">
-                        <TextBox x:Name="RelationshipsOutput" 
-                               IsReadOnly="True" 
-                               FontFamily="Consolas" 
-                               FontSize="11"
-                               Margin="10"
-                               Background="White"
-                               Padding="10"
-                               TextWrapping="Wrap"
-                               VerticalScrollBarVisibility="Auto"
-                               HorizontalScrollBarVisibility="Auto"
-                               AcceptsReturn="True"/>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Left: PlantUML Input -->
+                        <Border Grid.Column="0" BorderThickness="0,0,1,0" BorderBrush="#E0E0E0">
+                            <DockPanel Margin="10">
+                                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+                                    <Label Content="PlantUML Code:" FontWeight="Bold"/>
+                                    <Button Content="Preview" Click="PreviewPuml_Click" Background="#007ACC" Padding="10,5" Margin="10,0,0,0"/>
+                                    <Button Content="Use Generated" Click="UseGenerated_Click" Background="#107C10" Padding="10,5" Margin="5,0,0,0"/>
+                                </StackPanel>
+                                <TextBox x:Name="PumlInput" 
+                                       FontFamily="Consolas" 
+                                       FontSize="11"
+                                       Background="#1E1E1E"
+                                       Foreground="#D4D4D4"
+                                       Padding="10"
+                                       TextWrapping="NoWrap"
+                                       AcceptsReturn="True"
+                                       AcceptsTab="True"
+                                       VerticalScrollBarVisibility="Auto"
+                                       HorizontalScrollBarVisibility="Auto"
+                                       Text="@startuml&#x0a;class Example {&#x0a;  +name: String&#x0a;  +doSomething(): void&#x0a;}&#x0a;@enduml"/>
+                            </DockPanel>
+                        </Border>
+                        
+                        <!-- Right: Preview Image -->
+                        <DockPanel Grid.Column="1" Margin="10">
+                            <Label DockPanel.Dock="Top" Content="Preview:" FontWeight="Bold" Margin="0,0,0,10"/>
+                            <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                    <Image x:Name="PumlPreviewImage" Stretch="None"/>
+                                </ScrollViewer>
+                            </Border>
+                        </DockPanel>
                     </Grid>
                 </TabItem>
             </TabControl>

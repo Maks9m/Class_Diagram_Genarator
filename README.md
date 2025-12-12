@@ -39,64 +39,147 @@ ClassDiagramGenerator/
 ```
 
 ### Project Classes Diagram
-```mermaid
-classDiagram
-    class IDiagramFormatter {
-        <<interface>>
-        +Format(ClassDiagram): string
-        +FormatMultiple(List~ClassDiagram~): string
+```
+@startuml ClassDiagramGenerator
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "ClassDiagramGenerator.Models" {
+    enum AccessModifier {
+        Public
+        Private
+        Protected
+        Internal
     }
 
-    class AsciiFormatter {
-        +Format(ClassDiagram): string
-        +FormatMultiple(List~ClassDiagram~): string
-    }
-
-    class PlantUmlFormatter {
-        +Format(ClassDiagram): string
-        +FormatMultiple(List~ClassDiagram~): string
-    }
-
-    class ReflectionAnalyzer {
-        +AnalyzeType(Type): ClassDiagram
-        +AnalyzeAssembly(Assembly): List~ClassDiagram~
-        +ExtractRelationships(List~ClassDiagram~): List~ClassRelationship~
+    enum RelationshipType {
+        Inherits
+        Implements
+        Uses
+        DependsOn
     }
 
     class ClassDiagram {
-        +ClassName: string
-        +Namespace: string
+        +ClassName: String
+        +Namespace: String?
         +IsAbstract: bool
-        +BaseClass: string
-        +Members: List~ClassMember~
-        +Methods: List~ClassMethod~
+        +IsInterface: bool
+        +IsStatic: bool
+        +BaseClass: String?
+        +Interfaces: List<String>
+        +Members: List<ClassMember>
+        +Methods: List<ClassMethod>
+        +ToString(): String
     }
 
     class ClassMember {
-        +Name: string
-        +Type: string
+        +Name: String
+        +Type: String
         +AccessModifier: AccessModifier
+        +IsStatic: bool
+        +IsReadOnly: bool
+        +ToString(): String
+        -GetModifierPrefix(): String
     }
 
     class ClassMethod {
-        +Name: string
-        +ReturnType: string
-        +Parameters: List~MethodParameter~
+        +Name: String
+        +ReturnType: String
+        +Parameters: List<MethodParameter>
+        +AccessModifier: AccessModifier
+        +IsStatic: bool
+        +IsAbstract: bool
+        +IsVirtual: bool
+        +ToString(): String
+        -GetModifierPrefix(): String
     }
 
+    class MethodParameter {
+        +Name: String
+        +Type: String
+    }
+
+    class ClassRelationship {
+        +SourceClass: String
+        +TargetClass: String
+        +Type: RelationshipType
+        +SourceNamespace: String?
+        +TargetNamespace: String?
+    }
+}
+
+package "ClassDiagramGenerator.Services" {
+    class ReflectionAnalyzer {
+        +AnalyzeType(type: Type): ClassDiagram
+        +AnalyzeAssembly(assembly: Assembly): List<ClassDiagram>
+        -GetBaseClassName(type: Type): String?
+        -GetInterfaceNames(type: Type): List<String>
+        -ExtractMembers(type: Type): List<ClassMember>
+        -ExtractMethods(type: Type): List<ClassMethod>
+        -GetTypeName(type: Type): String
+        -GetAccessModifier(field: FieldInfo): AccessModifier
+        -GetAccessModifier(property: PropertyInfo): AccessModifier
+        -GetAccessModifier(method: MethodInfo): AccessModifier
+    }
+}
+
+package "ClassDiagramGenerator.Formatters" {
+    interface IDiagramFormatter {
+        +Format(diagram: ClassDiagram): String
+        +FormatMultiple(diagrams: List<ClassDiagram>): String
+    }
+
+    class AsciiFormatter {
+        -BoxWidth: int
+        +Format(diagram: ClassDiagram): String
+        +FormatMultiple(diagrams: List<ClassDiagram>): String
+        -DrawBox(sb: StringBuilder, diagram: ClassDiagram): void
+        -CenterAndAppend(sb: StringBuilder, text: String): void
+        -AppendLine(sb: StringBuilder, text: String): void
+    }
+
+    class PlantUmlFormatter {
+        +Format(diagram: ClassDiagram): String
+        +FormatMultiple(diagrams: List<ClassDiagram>): String
+    }
+}
+
+package "ClassDiagramGenerator" {
     class MainWindow {
         -_analyzer: ReflectionAnalyzer
+        -_analyzedTypes: ObservableCollection<String>
+        -_diagramCache: Dictionary<String, ClassDiagram>
         -_asciiFormatter: AsciiFormatter
         -_plantUmlFormatter: PlantUmlFormatter
+        +AnalyzedTypes: ObservableCollection<String>
+        -AnalyzeType_Click(): void
+        -BrowseAssembly_Click(): void
+        -DisplayDiagram(diagram: ClassDiagram): void
+        -PreviewPuml_Click(): void
     }
+}
 
-    IDiagramFormatter <|.. AsciiFormatter
-    IDiagramFormatter <|.. PlantUmlFormatter
-    ReflectionAnalyzer --> ClassDiagram : creates
-    ClassDiagram o-- ClassMember
-    ClassDiagram o-- ClassMethod
-    MainWindow --> ReflectionAnalyzer : uses
-    MainWindow --> IDiagramFormatter : uses
+' Relationships
+ClassDiagram "1" *-- "*" ClassMember : contains
+ClassDiagram "1" *-- "*" ClassMethod : contains
+ClassMethod "1" *-- "*" MethodParameter : contains
+ClassMember --> AccessModifier : uses
+ClassMethod --> AccessModifier : uses
+ClassRelationship --> RelationshipType : uses
+
+AsciiFormatter ..|> IDiagramFormatter
+PlantUmlFormatter ..|> IDiagramFormatter
+
+ReflectionAnalyzer ..> ClassDiagram : creates
+ReflectionAnalyzer ..> ClassMember : creates
+ReflectionAnalyzer ..> ClassMethod : creates
+
+MainWindow --> ReflectionAnalyzer : uses
+MainWindow --> AsciiFormatter : uses
+MainWindow --> PlantUmlFormatter : uses
+MainWindow --> ClassDiagram : displays
+@enduml
 ```
 
 ## Usage
@@ -104,7 +187,7 @@ classDiagram
 ### Build the Project
 
 ```bash
-dotnet build
+dotnet build ClassDiagramGenerator.csproj
 ```
 
 ### Run the Application
