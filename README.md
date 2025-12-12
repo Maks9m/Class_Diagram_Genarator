@@ -216,6 +216,10 @@ MainWindow --> ClassDiagram : displays
 ```bash
 dotnet build ClassDiagramGenerator.csproj
 ```
+If you have build error (used bu another proccess):
+```bash
+Stop-Process -Name "ClassDiagramGenerator" -Force -ErrorAction SilentlyContinue;
+```
 
 ### Run the Application
 
